@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Kina 2026 oppgjør</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one column, phone first; a sticky name bar, a total card, then lines grouped by day. Monochrome by request. */
+:root{--bg:#ffffff;--fg:#111111;--mute:#6b6b6b;--line:#dcdcdc;--soft:#f3f3f3;--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111111;--fg:#f2f2f2;--mute:#9a9a9a;--line:#333333;--soft:#1c1c1c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111111;--fg:#f2f2f2;--mute:#9a9a9a;--line:#333333;--soft:#1c1c1c;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;line-height:1.45;margin:0}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 96px}
+h1{font-size:22px;margin:20px 0 4px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 16px;font-size:15px}
+.names{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding:10px 0;display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--line);z-index:5}
+.names button{font:inherit;font-size:15px;padding:8px 14px;border:1px solid var(--fg);background:var(--bg);color:var(--fg);border-radius:999px;cursor:pointer}
+.names button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.names button:focus-visible,.line button:focus-visible,.bar button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.total{border:1px solid var(--fg);padding:14px 16px;margin:16px 0}
+.total .big{font-size:30px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-0.01em}
+.total .sub{color:var(--mute);font-size:14px}
+.controls{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:8px 0 4px;font-size:14px;color:var(--mute)}
+.controls label{display:flex;align-items:center;gap:6px;cursor:pointer}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin:22px 0 6px;font-weight:600}
+.day-sum{font-size:13px;color:var(--mute);float:right;font-variant-numeric:tabular-nums}
+.line{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.line .what{min-width:0;overflow-wrap:anywhere}
+.line .amt{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.line .share{font-weight:600}
+.line .tot{color:var(--mute);font-size:13px}
+.line .who{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:4px;font-size:12.5px;line-height:1.3}
+.line .who span,.lg{padding:1px 7px;border-radius:3px;border:1px solid var(--fg);color:var(--fg);white-space:nowrap}
+.line .who span.off,.lg.off{border-color:var(--line);color:var(--mute);text-decoration:line-through}
+.line .who span.me{background:var(--fg);color:var(--bg)}
+.line .who span.me.off{background:transparent;color:var(--mute);border-style:dashed}
+.lg{font-size:12.5px}
+.line .est{font-size:12px;border:1px solid var(--mute);color:var(--mute);padding:0 5px;border-radius:3px;margin-left:6px}
+.line .act{grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.line button{font:inherit;font-size:13px;padding:4px 10px;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:4px;cursor:pointer}
+.line button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.line input{font:inherit;font-size:13px;padding:4px 8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:4px;flex:1;min-width:120px}
+.line.out{opacity:.55}
+.line.out .what{text-decoration:line-through}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;gap:8px;align-items:center;flex-wrap:wrap;z-index:5}
+.bar .n{font-size:14px;color:var(--mute);flex:1 1 100%}
+.bar button{font:inherit;font-size:15px;padding:10px 14px;border:1px solid var(--fg);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.bar button.primary{background:var(--fg);color:var(--bg)}
+.bar button:disabled{opacity:.4;cursor:default}
+.wrap{padding-bottom:140px}
+.toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:6px;font-size:14px;z-index:6}
+.foot{color:var(--mute);font-size:13px;margin-top:24px}
+.foot p{margin:6px 0}
+pre.copy{display:none}
+@media (prefers-reduced-motion: no-preference){.line{transition:opacity .15s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Kina 2026: det Sjur la ut</h1>
+  <p class="lead">Velg navnet ditt. Du ser linjene du var med på, og din del av hver. Under hver linje står alle seks navn: <span class="lg on">med</span> og <span class="lg off">ikke med</span>. Stemmer noe ikke, trykk «Ikke meg» eller skriv en kort kommentar, og send rettelsene til Sjur med knappen nederst.</p>
+  <div class="names" id="names" role="group" aria-label="Hvem er du"></div>
+  <div class="total" id="total" hidden>
+    <div class="big" id="totCny"></div>
+    <div class="sub" id="totSub"></div>
+  </div>
+  <div class="controls">
+    <span id="count"></span>
+    <label><input type="checkbox" id="showAll"> Vis alle linjer</label>
+  </div>
+  <div id="list"></div>
+  <div class="foot">
+    <p>Beløp i kinesiske yuan (CNY). Det som ble betalt i baht eller kroner er regnet om til yuan med samme kurs som kortet brukte. Linjer merket «anslag» er ikke trukket ennå.</p>
+    <p>Kilde: Sjurs kort, Alipay og WeChat, 30.09 til 09.11.2026.</p>
+    <p>Det du trykker og skriver her lagres bare i din egen nettleser. Sjur ser ingenting før du sender rettelsene med knappen nederst (WhatsApp eller SMS), så oppdaterer han listen.</p>
+  </div>
+</div>
+<div class="bar" id="bar" hidden>
+  <span class="n" id="barText"></span>
+  <button id="waBtn" type="button" class="primary">Send til Sjur på WhatsApp</button>
+  <button id="smsBtn" type="button">Send som SMS</button>
+  <button id="copyBtn" type="button">Kopier</button>
+</div>
+<script>
+const DATA = {"persons": ["Sjur", "Jacob", "Thomas", "Kasper", "Lorik", "Emma"], "lines": [{"d": "2026-09-14", "t": "Flybillett Oslo–Bangkok 27.10 (Thai Airways), Thomas sin", "cny": 2932.87, "who": [0, 0, 1, 0, 0, 0], "share": [0.0, 0.0, 2932.9, 0.0, 0.0, 0.0], "est": false, "cur": "4 194 NOK", "mk": 0}, {"d": "2026-09-30", "t": "Middag før avreise, Szechuan Chengdu, Oslo", "cny": 1258.74, "who": [1, 1, 1, 1, 0, 0], "share": [314.7, 314.7, 314.7, 314.7, 0.0, 0.0], "est": false, "cur": "1 800 NOK", "mk": 0}, {"d": "2026-10-06", "t": "Hotell i Bangkok 28.–29.10 (Aspira G Sukhumvit, via Agoda)", "cny": 800.18, "who": [1, 1, 1, 0, 0, 0], "share": [266.7, 266.7, 266.7, 0.0, 0.0, 0.0], "est": false, "cur": "3875.22 THB", "mk": 0}, {"d": "2026-10-25", "t": "Flybilletter Bangkok–Kunming 29.10, 3 personer (China Eastern)", "cny": 2725.24, "who": [1, 1, 1, 0, 0, 0], "share": [908.4, 908.4, 908.4, 0.0, 0.0, 0.0], "est": false, "cur": "407.70 USD", "mk": 0}, {"d": "2026-10-27", "t": "Sjokolade til gaver, kjøpt i Oslo (ca. 600 kr)", "cny": 419.58, "who": [1, 1, 1, 1, 0, 0], "share": [104.9, 104.9, 104.9, 104.9, 0.0, 0.0], "est": false, "cur": "600 NOK", "mk": 0}, {"d": "2026-10-27", "t": "Forskudd på hostel i Kunming (Hostelworld)", "cny": 124.39, "who": [0, 1, 1, 1, 1, 0], "share": [0.0, 31.1, 31.1, 31.1, 31.1, 0.0], "est": false, "cur": "16.45 EUR", "mk": 0}, {"d": "2026-10-28", "t": "Taxi, tog, kaffe og mat i Bangkok 28.–29.10 (Grab og kontanter, samlet)", "cny": 421.27, "who": [1, 1, 1, 0, 0, 0], "share": [140.4, 140.4, 140.4, 0.0, 0.0, 0.0], "est": false, "cur": "2124 THB", "mk": 0}, {"d": "2026-10-29", "t": "Taxi (DiDi)", "cny": 7.9, "who": [1, 1, 1, 1, 1, 0], "share": [0.9, 1.7, 1.7, 1.7, 1.7, 0.0], "est": false, "cur": "7.90 CNY", "mk": 1}, {"d": "2026-10-29", "t": "Middag, Huixiang-restauranten, Kunming", "cny": 130.0, "who": [1, 1, 1, 1, 1, 0], "share": [15.6, 28.6, 28.6, 28.6, 28.6, 0.0], "est": false, "cur": "130.00 CNY", "mk": 1}, {"d": "2026-10-29", "t": "Matbutikk, Kunming", "cny": 22.5, "who": [1, 1, 1, 1, 1, 0], "share": [2.7, 5.0, 5.0, 5.0, 5.0, 0.0], "est": false, "cur": "22.50 CNY", "mk": 1}, {"d": "2026-10-29", "t": "Kafé, Kunming (kvelden 29.10)", "cny": 75.0, "who": [1, 1, 1, 1, 1, 0], "share": [9.0, 16.5, 16.5, 16.5, 16.5, 0.0], "est": false, "cur": "75.00 CNY", "mk": 1}, {"d": "2026-10-29", "t": "Taxi (DiDi)", "cny": 15.2, "who": [1, 1, 1, 1, 1, 0], "share": [1.8, 3.3, 3.3, 3.3, 3.3, 0.0], "est": false, "cur": "15.20 CNY", "mk": 1}, {"d": "2026-10-30", "t": "Taxi (DiDi)", "cny": 11.9, "who": [1, 1, 1, 1, 1, 0], "share": [1.4, 2.6, 2.6, 2.6, 2.6, 0.0], "est": false, "cur": "11.90 CNY", "mk": 1}, {"d": "2026-10-30", "t": "Shibari-workshop, Kunming", "cny": 1030.0, "who": [1, 1, 1, 1, 1, 0], "share": [123.6, 226.6, 226.6, 226.6, 226.6, 0.0], "est": false, "cur": "1030.00 CNY", "mk": 1}, {"d": "2026-10-30", "t": "Te-butikk (te-smaking), Kunming", "cny": 168.0, "who": [1, 1, 1, 1, 1, 0], "share": [20.2, 37.0, 37.0, 37.0, 37.0, 0.0], "est": false, "cur": "168.00 CNY", "mk": 1}, {"d": "2026-10-30", "t": "Taxi (DiDi)", "cny": 13.9, "who": [1, 1, 1, 1, 1, 0], "share": [1.7, 3.1, 3.1, 3.1, 3.1, 0.0], "est": false, "cur": "13.90 CNY", "mk": 1}, {"d": "2026-10-30", "t": "Taxi (DiDi)", "cny": 9.9, "who": [1, 1, 1, 1, 1, 0], "share": [1.2, 2.2, 2.2, 2.2, 2.2, 0.0], "est": false, "cur": "9.90 CNY", "mk": 1}, {"d": "2026-10-30", "t": "Middag, Hongshan-restauranten, Kunming", "cny": 171.0, "who": [1, 1, 1, 1, 1, 0], "share": [20.5, 37.6, 37.6, 37.6, 37.6, 0.0], "est": false, "cur": "171.00 CNY", "mk": 1}, {"d": "2026-10-30", "t": "Bar, KMG Social Club, Kunming", "cny": 111.0, "who": [1, 1, 1, 1, 1, 0], "share": [13.3, 24.4, 24.4, 24.4, 24.4, 0.0], "est": false, "cur": "111.00 CNY", "mk": 1}, {"d": "2026-10-30", "t": "Sitronte, Kunming", "cny": 75.0, "who": [1, 1, 1, 1, 1, 0], "share": [9.0, 16.5, 16.5, 16.5, 16.5, 0.0], "est": false, "cur": "75.00 CNY", "mk": 1}, {"d": "2026-10-30", "t": "Kafé (drikke), Kunming", "cny": 136.0, "who": [1, 1, 1, 1, 1, 0], "share": [16.3, 29.9, 29.9, 29.9, 29.9, 0.0], "est": false, "cur": "136.00 CNY", "mk": 1}, {"d": "2026-10-30", "t": "Massasje (blindemassasje), Kunming", "cny": 247.2, "who": [1, 0, 0, 1, 1, 0], "share": [65.9, 0.0, 0.0, 90.6, 90.6, 0.0], "est": false, "cur": "247.20 CNY", "mk": 1}, {"d": "2026-10-30", "t": "Vegetarmat, Juexiyuan, Kunming", "cny": 90.0, "who": [1, 1, 1, 1, 1, 0], "share": [10.8, 19.8, 19.8, 19.8, 19.8, 0.0], "est": false, "cur": "90.00 CNY", "mk": 1}, {"d": "2026-10-30", "t": "Meituan-bestilling (mat eller sykkel)", "cny": 5.9, "who": [1, 1, 1, 1, 1, 0], "share": [0.7, 1.3, 1.3, 1.3, 1.3, 0.0], "est": false, "cur": "5.90 CNY", "mk": 1}, {"d": "2026-10-30", "t": "Bar/kafé, QR-betaling 150, Kunming", "cny": 150.0, "who": [1, 1, 1, 1, 1, 0], "share": [18.0, 33.0, 33.0, 33.0, 33.0, 0.0], "est": false, "cur": "150.00 CNY", "mk": 1}, {"d": "2026-10-30", "t": "Meituan-bestilling (mat eller sykkel)", "cny": 15.0, "who": [1, 1, 1, 1, 1, 0], "share": [1.8, 3.3, 3.3, 3.3, 3.3, 0.0], "est": false, "cur": "15 CNY", "mk": 1}, {"d": "2026-10-31", "t": "Middag, Hongshan-restauranten, Kunming", "cny": 209.09, "who": [1, 1, 1, 1, 1, 0], "share": [25.1, 46.0, 46.0, 46.0, 46.0, 0.0], "est": false, "cur": "209.09 CNY", "mk": 1}, {"d": "2026-10-31", "t": "Bar, KMG Social Club, Kunming", "cny": 140.0, "who": [1, 1, 1, 1, 1, 0], "share": [16.8, 30.8, 30.8, 30.8, 30.8, 0.0], "est": false, "cur": "140.00 CNY", "mk": 1}, {"d": "2026-10-31", "t": "Baozi (frokost), Kunming", "cny": 9.5, "who": [1, 1, 1, 1, 1, 0], "share": [1.1, 2.1, 2.1, 2.1, 2.1, 0.0], "est": false, "cur": "9.50 CNY", "mk": 1}, {"d": "2026-10-31", "t": "Dawutai-studio, Kunming: Loriks del", "cny": 215.0, "who": [0, 0, 0, 0, 1, 0], "share": [-21.5, 0.0, 0.0, 0.0, 236.5, 0.0], "est": false, "cur": "215.00 CNY", "mk": 1}, {"d": "2026-10-31", "t": "Sportsbutikk, Kunming: klær til Lorik", "cny": 81.1, "who": [0, 0, 0, 0, 1, 0], "share": [-8.1, 0.0, 0.0, 0.0, 89.2, 0.0], "est": false, "cur": "81.10 CNY", "mk": 1}, {"d": "2026-10-31", "t": "Taxi (DiDi)", "cny": 30.9, "who": [1, 1, 1, 1, 1, 0], "share": [3.7, 6.8, 6.8, 6.8, 6.8, 0.0], "est": false, "cur": "30.90 CNY", "mk": 1}, {"d": "2026-10-31", "t": "Taxi (DiDi)", "cny": 18.1, "who": [1, 1, 1, 1, 1, 0], "share": [2.2, 4.0, 4.0, 4.0, 4.0, 0.0], "est": false, "cur": "18.10 CNY", "mk": 1}, {"d": "2026-10-31", "t": "Småkjøp, QR 19, Kunming", "cny": 19.0, "who": [1, 1, 1, 1, 1, 0], "share": [2.3, 4.2, 4.2, 4.2, 4.2, 0.0], "est": false, "cur": "19.00 CNY", "mk": 1}, {"d": "2026-10-31", "t": "Taxi (DiDi)", "cny": 10.8, "who": [1, 1, 1, 1, 1, 0], "share": [1.3, 2.4, 2.4, 2.4, 2.4, 0.0], "est": false, "cur": "10.80 CNY", "mk": 1}, {"d": "2026-10-31", "t": "Taxi (DiDi)", "cny": 35.5, "who": [1, 1, 1, 1, 1, 0], "share": [4.3, 7.8, 7.8, 7.8, 7.8, 0.0], "est": false, "cur": "35.50 CNY", "mk": 1}, {"d": "2026-10-31", "t": "Butikk/restaurant, QR 180, Kunming", "cny": 180.0, "who": [1, 1, 1, 1, 1, 0], "share": [21.6, 39.6, 39.6, 39.6, 39.6, 0.0], "est": false, "cur": "180.00 CNY", "mk": 1}, {"d": "2026-11-01", "t": "Hostel i Kunming, småkjøp", "cny": 23.0, "who": [1, 1, 1, 1, 1, 0], "share": [4.6, 4.6, 4.6, 4.6, 4.6, 0.0], "est": false, "cur": "23.00 CNY", "mk": 0}, {"d": "2026-11-01", "t": "Nærbutikk, Kunming", "cny": 24.7, "who": [1, 1, 1, 1, 1, 0], "share": [3.0, 5.4, 5.4, 5.4, 5.4, 0.0], "est": false, "cur": "24.70 CNY", "mk": 1}, {"d": "2026-11-01", "t": "Snacks, Kunming", "cny": 22.0, "who": [1, 1, 1, 1, 1, 0], "share": [2.6, 4.8, 4.8, 4.8, 4.8, 0.0], "est": false, "cur": "22.00 CNY", "mk": 1}, {"d": "2026-11-01", "t": "Øl og mat, Wanpi Craft Beer, Kunming", "cny": 512.94, "who": [1, 1, 1, 1, 1, 0], "share": [61.6, 112.8, 112.8, 112.8, 112.8, 0.0], "est": false, "cur": "512.94 CNY", "mk": 1}, {"d": "2026-11-01", "t": "Meituan-bestilling (mat eller sykkel)", "cny": 22.8, "who": [1, 1, 1, 1, 1, 0], "share": [2.7, 5.0, 5.0, 5.0, 5.0, 0.0], "est": false, "cur": "22.80 CNY", "mk": 1}, {"d": "2026-11-02", "t": "Mat og drikke på toget til Lijiang", "cny": 24.0, "who": [1, 1, 1, 1, 1, 0], "share": [2.9, 5.3, 5.3, 5.3, 5.3, 0.0], "est": false, "cur": "24.00 CNY", "mk": 1}, {"d": "2026-11-02", "t": "Kjøp på stasjonen, Kunming", "cny": 20.0, "who": [1, 1, 1, 1, 1, 0], "share": [2.4, 4.4, 4.4, 4.4, 4.4, 0.0], "est": false, "cur": "20.00 CNY", "mk": 1}, {"d": "2026-11-02", "t": "Middag, restaurant i Lijiang", "cny": 243.08, "who": [1, 1, 1, 1, 1, 0], "share": [29.2, 53.5, 53.5, 53.5, 53.5, 0.0], "est": false, "cur": "243.08 CNY", "mk": 1}, {"d": "2026-11-02", "t": "Te, Dianchi Houhai (Kunming)", "cny": 45.0, "who": [1, 1, 1, 1, 1, 0], "share": [5.4, 9.9, 9.9, 9.9, 9.9, 0.0], "est": false, "cur": "45.00 CNY", "mk": 1}, {"d": "2026-11-02", "t": "Sykkelutleie/tur, Qixingdao (Kunming)", "cny": 339.9, "who": [1, 1, 1, 1, 1, 0], "share": [40.8, 74.8, 74.8, 74.8, 74.8, 0.0], "est": false, "cur": "339.90 CNY", "mk": 1}, {"d": "2026-11-02", "t": "Taxi (DiDi)", "cny": 9.5, "who": [1, 1, 1, 1, 1, 0], "share": [1.1, 2.1, 2.1, 2.1, 2.1, 0.0], "est": false, "cur": "9.50 CNY", "mk": 1}, {"d": "2026-11-02", "t": "Kaffe, Happy Coffee", "cny": 78.0, "who": [1, 1, 1, 1, 1, 0], "share": [9.4, 17.2, 17.2, 17.2, 17.2, 0.0], "est": false, "cur": "78.00 CNY", "mk": 1}, {"d": "2026-11-02", "t": "Mat og drikke på toget til Lijiang", "cny": 33.0, "who": [1, 1, 1, 1, 1, 0], "share": [4.0, 7.3, 7.3, 7.3, 7.3, 0.0], "est": false, "cur": "33.00 CNY", "mk": 1}, {"d": "2026-11-02", "t": "Mat og drikke på toget til Lijiang", "cny": 15.0, "who": [1, 1, 1, 1, 1, 0], "share": [1.8, 3.3, 3.3, 3.3, 3.3, 0.0], "est": false, "cur": "15.00 CNY", "mk": 1}, {"d": "2026-11-02", "t": "Taxi (DiDi)", "cny": 11.6, "who": [1, 1, 1, 1, 1, 0], "share": [1.4, 2.6, 2.6, 2.6, 2.6, 0.0], "est": false, "cur": "11.60 CNY", "mk": 1}, {"d": "2026-11-02", "t": "Meituan-bestilling (mat eller sykkel)", "cny": 16.1, "who": [1, 1, 1, 1, 1, 0], "share": [1.9, 3.5, 3.5, 3.5, 3.5, 0.0], "est": false, "cur": "16.10 CNY", "mk": 1}, {"d": "2026-11-02", "t": "Taxi (DiDi)", "cny": 14.7, "who": [1, 1, 1, 1, 1, 0], "share": [1.8, 3.2, 3.2, 3.2, 3.2, 0.0], "est": false, "cur": "14.70 CNY", "mk": 1}, {"d": "2026-11-02", "t": "Meituan-bestilling (mat eller sykkel)", "cny": 33.1, "who": [1, 1, 1, 1, 1, 0], "share": [4.0, 7.3, 7.3, 7.3, 7.3, 0.0], "est": false, "cur": "33.10 CNY", "mk": 1}, {"d": "2026-11-02", "t": "Fotballkamp, Kunming (Sjur og Lorik)", "cny": 160.0, "who": [1, 0, 0, 0, 1, 0], "share": [72.0, 0.0, 0.0, 0.0, 88.0, 0.0], "est": false, "cur": "160 CNY", "mk": 1}, {"d": "2026-11-02", "t": "Hotell i Lijiang 02.–03.11, 2 rom (Rezen Mingyu), Jacob, Thomas, Kasper, Lorik", "cny": 334.0, "who": [0, 1, 1, 1, 1, 0], "share": [0.0, 83.5, 83.5, 83.5, 83.5, 0.0], "est": false, "cur": "334.00 CNY", "mk": 0}, {"d": "2026-11-02", "t": "Hotell i Lijiang 02.–03.11, 2 rom (Rezen Mingyu), Jacob, Thomas, Kasper, Lorik", "cny": 319.0, "who": [0, 1, 1, 1, 1, 0], "share": [0.0, 79.8, 79.8, 79.8, 79.8, 0.0], "est": false, "cur": "319.00 CNY", "mk": 0}, {"d": "2026-11-03", "t": "Supermarked, Lashi (Lijiang)", "cny": 26.0, "who": [1, 1, 1, 1, 1, 0], "share": [3.1, 5.7, 5.7, 5.7, 5.7, 0.0], "est": false, "cur": "26.00 CNY", "mk": 1}, {"d": "2026-11-03", "t": "Supermarked, Lijiang", "cny": 179.01, "who": [1, 1, 1, 1, 1, 0], "share": [21.5, 39.4, 39.4, 39.4, 39.4, 0.0], "est": false, "cur": "179.01 CNY", "mk": 1}, {"d": "2026-11-03", "t": "Kiosk og dagligvarer, Lijiang", "cny": 105.0, "who": [1, 1, 1, 1, 1, 0], "share": [12.6, 23.1, 23.1, 23.1, 23.1, 0.0], "est": false, "cur": "105.00 CNY", "mk": 1}, {"d": "2026-11-03", "t": "Nudler (guoqiao mixian), Lijiang", "cny": 14.0, "who": [1, 1, 1, 1, 1, 0], "share": [1.7, 3.1, 3.1, 3.1, 3.1, 0.0], "est": false, "cur": "14.00 CNY", "mk": 1}, {"d": "2026-11-03", "t": "QR-betaling 70, Lijiang", "cny": 70.0, "who": [1, 1, 1, 1, 1, 0], "share": [8.4, 15.4, 15.4, 15.4, 15.4, 0.0], "est": false, "cur": "70.00 CNY", "mk": 1}, {"d": "2026-11-03", "t": "Taxi (DiDi)", "cny": 47.4, "who": [1, 1, 1, 1, 1, 0], "share": [5.7, 10.4, 10.4, 10.4, 10.4, 0.0], "est": false, "cur": "47.40 CNY", "mk": 1}, {"d": "2026-11-03", "t": "Småkjøp, QR 26, Lijiang", "cny": 26.0, "who": [1, 1, 1, 1, 1, 0], "share": [3.1, 5.7, 5.7, 5.7, 5.7, 0.0], "est": false, "cur": "26.00 CNY", "mk": 1}, {"d": "2026-11-04", "t": "Kiosk og dagligvarer, Lijiang", "cny": 54.0, "who": [1, 1, 1, 1, 1, 1], "share": [4.5, 9.9, 9.9, 9.9, 9.9, 9.9], "est": false, "cur": "54.00 CNY", "mk": 1}, {"d": "2026-11-04", "t": "Kiosk og dagligvarer, Lijiang", "cny": 25.0, "who": [1, 1, 1, 1, 1, 1], "share": [2.1, 4.6, 4.6, 4.6, 4.6, 4.6], "est": false, "cur": "25.00 CNY", "mk": 1}, {"d": "2026-11-05", "t": "Shenxian-klubben, Dali 05.11 (inngang/aktivitet)", "cny": 150.0, "who": [1, 1, 1, 1, 1, 1], "share": [12.5, 27.5, 27.5, 27.5, 27.5, 27.5], "est": false, "cur": "150.00 CNY", "mk": 1}, {"d": "2026-11-05", "t": "Øl, Bad Monkey Bar, Dali", "cny": 100.0, "who": [1, 1, 1, 1, 1, 1], "share": [8.3, 18.3, 18.3, 18.3, 18.3, 18.3], "est": false, "cur": "100.00 CNY", "mk": 1}, {"d": "2026-11-05", "t": "Taxi (DiDi)", "cny": 52.8, "who": [1, 1, 1, 1, 1, 1], "share": [4.4, 9.7, 9.7, 9.7, 9.7, 9.7], "est": false, "cur": "52.80 CNY", "mk": 1}, {"d": "2026-11-05", "t": "Mat og snacks, Lashi (Lijiang)", "cny": 236.9, "who": [1, 1, 1, 1, 1, 1], "share": [19.7, 43.4, 43.4, 43.4, 43.4, 43.4], "est": false, "cur": "236.90 CNY", "mk": 1}, {"d": "2026-11-05", "t": "Småkjøp, QR 9", "cny": 9.0, "who": [1, 1, 1, 1, 1, 1], "share": [0.8, 1.6, 1.6, 1.6, 1.6, 1.6], "est": false, "cur": "9.00 CNY", "mk": 1}, {"d": "2026-11-06", "t": "Taxi (DiDi)", "cny": 48.9, "who": [1, 1, 1, 1, 1, 1], "share": [4.1, 9.0, 9.0, 9.0, 9.0, 9.0], "est": false, "cur": "48.90 CNY", "mk": 1}, {"d": "2026-11-06", "t": "Drikke, Yunyou Huotang bar, Dali", "cny": 339.9, "who": [1, 1, 1, 1, 1, 1], "share": [28.3, 62.3, 62.3, 62.3, 62.3, 62.3], "est": false, "cur": "339.90 CNY", "mk": 1}, {"d": "2026-11-06", "t": "Overnatting, gjestehus i Dali", "cny": 360.5, "who": [1, 1, 1, 1, 1, 1], "share": [60.1, 60.1, 60.1, 60.1, 60.1, 60.1], "est": false, "cur": "360.50 CNY", "mk": 0}, {"d": "2026-11-06", "t": "Drikke, Yunyou Huotang bar, Dali", "cny": 339.9, "who": [1, 1, 1, 1, 1, 1], "share": [28.3, 62.3, 62.3, 62.3, 62.3, 62.3], "est": false, "cur": "339.90 CNY", "mk": 1}, {"d": "2026-11-06", "t": "Taxi (DiDi)", "cny": 65.6, "who": [1, 1, 1, 1, 1, 1], "share": [5.5, 12.0, 12.0, 12.0, 12.0, 12.0], "est": false, "cur": "65.60 CNY", "mk": 1}, {"d": "2026-11-06", "t": "Bompenger, motorvei (leiebilen)", "cny": 87.0, "who": [1, 1, 1, 1, 1, 1], "share": [7.2, 15.9, 15.9, 15.9, 15.9, 15.9], "est": false, "cur": "87.00 CNY", "mk": 1}, {"d": "2026-11-06", "t": "Middag, Xuzhu-restauranten, Dali", "cny": 469.68, "who": [1, 1, 1, 1, 1, 1], "share": [39.1, 86.1, 86.1, 86.1, 86.1, 86.1], "est": false, "cur": "469.68 CNY", "mk": 1}, {"d": "2026-11-06", "t": "Kaffe og pizza, Luxi Croissant, Lijiang gamleby (Sjur og Emma)", "cny": 68.0, "who": [1, 0, 0, 0, 0, 1], "share": [30.6, 0.0, 0.0, 0.0, 0.0, 37.4], "est": false, "cur": "68.00 CNY", "mk": 1}, {"d": "2026-11-06", "t": "Parkering, Yulong (Lijiang)", "cny": 2.0, "who": [1, 1, 1, 1, 1, 1], "share": [0.2, 0.4, 0.4, 0.4, 0.4, 0.4], "est": false, "cur": "2.00 CNY", "mk": 1}, {"d": "2026-11-06", "t": "Småkjøp, QR 9, Lijiang", "cny": 9.0, "who": [1, 1, 1, 1, 1, 1], "share": [0.8, 1.6, 1.6, 1.6, 1.6, 1.6], "est": false, "cur": "9.00 CNY", "mk": 1}, {"d": "2026-11-06", "t": "Kaffe og pizza, Luxi Croissant, Lijiang gamleby (Sjur og Emma)", "cny": 44.0, "who": [1, 0, 0, 0, 0, 1], "share": [19.8, 0.0, 0.0, 0.0, 0.0, 24.2], "est": false, "cur": "44.00 CNY", "mk": 1}, {"d": "2026-11-06", "t": "Leiebil Lijiang–Dali–Kunming 06.–07.11, ANSLAG 600 ¥ (ikke trukket ennå, depositumet kommer tilbake)", "cny": 600.0, "who": [1, 1, 1, 1, 1, 1], "share": [50.0, 110.0, 110.0, 110.0, 110.0, 110.0], "est": true, "cur": "600 CNY anslag", "mk": 1}, {"d": "2026-11-07", "t": "Rasteplass, kiosk og melkete (bilturen)", "cny": 59.0, "who": [1, 1, 1, 1, 1, 1], "share": [4.9, 10.8, 10.8, 10.8, 10.8, 10.8], "est": false, "cur": "59.00 CNY", "mk": 1}, {"d": "2026-11-07", "t": "Bensin til leiebilen", "cny": 347.11, "who": [1, 1, 1, 1, 1, 1], "share": [28.9, 63.6, 63.6, 63.6, 63.6, 63.6], "est": false, "cur": "347.11 CNY", "mk": 1}, {"d": "2026-11-07", "t": "Bompenger, motorvei (leiebilen)", "cny": 155.0, "who": [1, 1, 1, 1, 1, 1], "share": [12.9, 28.4, 28.4, 28.4, 28.4, 28.4], "est": false, "cur": "155.00 CNY", "mk": 1}, {"d": "2026-11-07", "t": "Hotell i Kunming 07.11 (Hanting), Sjur bodde ikke der", "cny": 1442.0, "who": [0, 1, 1, 1, 1, 1], "share": [0.0, 288.4, 288.4, 288.4, 288.4, 288.4], "est": false, "cur": "1442.00 CNY", "mk": 0}, {"d": "2026-11-07", "t": "Lammenudler, Kunming", "cny": 92.0, "who": [1, 1, 1, 1, 1, 1], "share": [7.7, 16.9, 16.9, 16.9, 16.9, 16.9], "est": false, "cur": "92.00 CNY", "mk": 1}, {"d": "2026-11-07", "t": "Rasteplass, kiosk og melkete (bilturen)", "cny": 45.0, "who": [1, 1, 1, 1, 1, 1], "share": [3.8, 8.2, 8.2, 8.2, 8.2, 8.2], "est": false, "cur": "45.00 CNY", "mk": 1}, {"d": "2026-11-07", "t": "Parkering, Dali", "cny": 50.0, "who": [1, 1, 1, 1, 1, 1], "share": [4.2, 9.2, 9.2, 9.2, 9.2, 9.2], "est": false, "cur": "50.00 CNY", "mk": 1}, {"d": "2026-11-07", "t": "Drikke, Yunyou Huotang bar, Dali", "cny": 247.2, "who": [1, 1, 1, 1, 1, 1], "share": [20.6, 45.3, 45.3, 45.3, 45.3, 45.3], "est": false, "cur": "247.20 CNY", "mk": 1}, {"d": "2026-11-07", "t": "Mat, gårdsrestaurant (bilturen)", "cny": 29.0, "who": [1, 1, 1, 1, 1, 1], "share": [2.4, 5.3, 5.3, 5.3, 5.3, 5.3], "est": false, "cur": "29.00 CNY", "mk": 1}, {"d": "2026-11-07", "t": "Mat, gårdsrestaurant (bilturen)", "cny": 29.0, "who": [1, 1, 1, 1, 1, 1], "share": [2.4, 5.3, 5.3, 5.3, 5.3, 5.3], "est": false, "cur": "29.00 CNY", "mk": 1}, {"d": "2026-11-08", "t": "QR-betaling 50, Kunming", "cny": 50.0, "who": [1, 1, 1, 1, 1, 1], "share": [4.2, 9.2, 9.2, 9.2, 9.2, 9.2], "est": false, "cur": "50.00 CNY", "mk": 1}, {"d": "2026-11-08", "t": "Kiosk, Kunming", "cny": 85.0, "who": [1, 1, 1, 1, 1, 1], "share": [7.1, 15.6, 15.6, 15.6, 15.6, 15.6], "est": false, "cur": "85.00 CNY", "mk": 1}, {"d": "2026-11-08", "t": "Taxi (DiDi)", "cny": 18.1, "who": [1, 1, 1, 1, 1, 1], "share": [1.5, 3.3, 3.3, 3.3, 3.3, 3.3], "est": false, "cur": "18.10 CNY", "mk": 1}, {"d": "2026-11-08", "t": "Middag, Hongshan-restauranten, Kunming", "cny": 535.6, "who": [1, 1, 1, 1, 1, 1], "share": [44.6, 98.2, 98.2, 98.2, 98.2, 98.2], "est": false, "cur": "535.60 CNY", "mk": 1}, {"d": "2026-11-08", "t": "Massasje (blindemassasje), Kunming", "cny": 329.6, "who": [1, 0, 1, 1, 0, 1], "share": [57.7, 0.0, 90.6, 90.6, 0.0, 90.6], "est": false, "cur": "329.60 CNY", "mk": 1}, {"d": "2026-11-08", "t": "Meituan-bestilling (mat eller sykkel)", "cny": 41.1, "who": [1, 1, 1, 1, 1, 1], "share": [3.4, 7.5, 7.5, 7.5, 7.5, 7.5], "est": false, "cur": "41.10 CNY", "mk": 1}, {"d": "2026-11-08", "t": "Togbilletter Kunming–Jingdezhen 09.11, 5 personer (Trip.com)", "cny": 4187.5, "who": [1, 1, 1, 1, 0, 1], "share": [837.5, 837.5, 837.5, 837.5, 0.0, 837.5], "est": false, "cur": "4187.50 CNY", "mk": 0}, {"d": "2026-11-09", "t": "Hurtigmat på stasjonen, Kunming Sør", "cny": 36.0, "who": [1, 1, 1, 1, 0, 1], "share": [4.3, 7.9, 7.9, 7.9, 0.0, 7.9], "est": false, "cur": "36.00 CNY", "mk": 1}, {"d": "2026-11-09", "t": "Leiebil Dali-turen, betaling via QR", "cny": 150.0, "who": [1, 1, 1, 1, 1, 1], "share": [12.5, 27.5, 27.5, 27.5, 27.5, 27.5], "est": false, "cur": "150 CNY", "mk": 1}]};
+const P = DATA.persons;
+const INIT = {Sjur:'S',Jacob:'J',Thomas:'T',Kasper:'K',Lorik:'L',Emma:'E'};
+const MONTHS = ['jan','feb','mar','apr','mai','jun','jul','aug','sep','okt','nov','des'];
+const fmt = n => Math.round(n).toLocaleString('nb-NO');
+const fmtDay = d => { const [y,m,dd]=d.split('-'); return parseInt(dd)+'. '+MONTHS[parseInt(m)-1]; };
+let me = null;            // index in P
+let state = {};           // key lineIndex -> {out:bool, note:string}
+const KEY = 'kina2026-oppgjor';
+try { const s = JSON.parse(localStorage.getItem(KEY)||'{}'); if (s.me!=null) me=s.me; if (s.state) state=s.state; } catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify({me,state})); }catch(e){} }
+
+const namesEl=document.getElementById('names');
+P.forEach((p,i)=>{ if(i===0) return; const b=document.createElement('button'); b.type='button'; b.textContent=p; b.id='name-'+p; b.setAttribute('aria-pressed', String(me===i)); b.onclick=()=>{ me=i; save(); render(); }; namesEl.appendChild(b); });
+
+document.getElementById('showAll').onchange=render;
+
+function render(){
+  for(const b of namesEl.children){ b.setAttribute('aria-pressed', String(me!==null && b.textContent===P[me])); }
+  const showAll=document.getElementById('showAll').checked;
+  const list=document.getElementById('list'); list.innerHTML='';
+  const totalBox=document.getElementById('total'); const bar=document.getElementById('bar');
+  if(me===null){ totalBox.hidden=true; bar.hidden=true; document.getElementById('count').textContent='Velg navnet ditt over for å se din del.'; if(!showAll) return; }
+  let rows=DATA.lines.map((l,i)=>({...l,i})).filter(l=> showAll || (me!==null && l.who[me]));
+  rows.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);
+  let sum=0, sumOut=0, days={};
+  rows.forEach(l=>{ (days[l.d]=days[l.d]||[]).push(l); });
+  Object.keys(days).sort().forEach(d=>{
+    const h=document.createElement('h2'); h.textContent=fmtDay(d);
+    const ds=document.createElement('span'); ds.className='day-sum';
+    let daySum=0;
+    const frag=document.createDocumentFragment();
+    days[d].forEach(l=>{
+      const st=state[l.i]||{}; const mine = me!==null && l.who[me];
+      const share = mine ? l.share[me] : 0;
+      if(mine){ if(st.out) sumOut+=share; else sum+=share; daySum+= st.out?0:share; }
+      const row=document.createElement('div'); row.className='line'+(st.out?' out':''); row.id='line-'+l.i;
+      const what=document.createElement('div'); what.className='what';
+      const t=document.createElement('div'); t.textContent=l.t; if(l.est){ const e=document.createElement('span'); e.className='est'; e.textContent='anslag'; t.appendChild(e); }
+      const who=document.createElement('div'); who.className='who';
+      P.forEach((p,k)=>{ const c=document.createElement('span'); c.textContent=p; c.className=(l.who[k]?'on':'off')+(k===me?' me':''); c.title=l.who[k]?p+' var med':p+' var ikke med'; who.appendChild(c); });
+      what.appendChild(t); what.appendChild(who);
+      const amt=document.createElement('div'); amt.className='amt';
+      const sh=document.createElement('div'); sh.className='share'; sh.textContent = mine ? fmt(share)+' ¥' : '';
+      const tot=document.createElement('div'); tot.className='tot'; tot.textContent='totalt '+fmt(l.cny)+' ¥'+(l.cur.indexOf('CNY')<0?' ('+l.cur+')':'');
+      amt.appendChild(sh); amt.appendChild(tot);
+      row.appendChild(what); row.appendChild(amt);
+      if(mine){
+        const act=document.createElement('div'); act.className='act';
+        const b=document.createElement('button'); b.type='button'; b.textContent= st.out?'Jo, jeg var med':'Ikke meg'; b.setAttribute('aria-pressed',String(!!st.out));
+        b.onclick=()=>{ state[l.i]={...st,out:!st.out}; save(); render(); };
+        const inp=document.createElement('input'); inp.type='text'; inp.placeholder='Kommentar (valgfritt)'; inp.value=st.note||''; inp.id='note-'+l.i; inp.setAttribute('aria-label','Kommentar til '+l.t);
+        inp.oninput=()=>{ state[l.i]={...(state[l.i]||{}),note:inp.value}; save(); updateBar(); };
+        act.appendChild(b); act.appendChild(inp); row.appendChild(act);
+      }
+      frag.appendChild(row);
+    });
+    if(me!==null){ ds.textContent=fmt(daySum)+' ¥'; h.appendChild(ds); }
+    list.appendChild(h); list.appendChild(frag);
+  });
+  if(me!==null){
+    totalBox.hidden=false;
+    document.getElementById('totCny').textContent = fmt(sum)+' ¥';
+    document.getElementById('totSub').textContent = P[me]+' til Sjur, ca. '+fmt(sum*1.43)+' kr' + (sumOut>0 ? '. '+fmt(sumOut)+' ¥ er merket «ikke meg» og holdt utenfor.' : '');
+    document.getElementById('count').textContent = rows.length+' linjer';
+    bar.hidden=false; updateBar();
+  } else {
+    document.getElementById('count').textContent = rows.length+' linjer';
+  }
+}
+function corrections(){
+  if(me===null) return [];
+  return DATA.lines.map((l,i)=>({l,i,st:state[i]||{}})).filter(x=> x.l.who[me] && (x.st.out || (x.st.note&&x.st.note.trim())));
+}
+function updateBar(){
+  const c=corrections();
+  document.getElementById('barText').textContent = c.length ? c.length+(c.length===1?' rettelse':' rettelser')+' klar til å sendes' : 'Ingen rettelser ennå. Stemmer alt, send gjerne et «OK» til Sjur.';
+  const none = c.length===0;
+  document.getElementById('copyBtn').disabled = none;
+}
+function corrText(){
+  const c=corrections();
+  if(!c.length) return P[me]+' her: Kina-oppgjøret stemmer for meg, '+fmt(currentSum())+' ¥.';
+  const lines=[P[me]+' sine rettelser til Kina-oppgjøret:'];
+  c.forEach(x=>{ lines.push('- '+fmtDay(x.l.d)+' '+x.l.t+' ('+fmt(x.l.cny)+' ¥): '+(x.st.out?'ikke meg':'')+(x.st.out&&x.st.note?'. ':'')+(x.st.note||'')); });
+  return lines.join('\n');
+}
+function currentSum(){ let s=0; DATA.lines.forEach((l,i)=>{ if(l.who[me] && !(state[i]&&state[i].out)) s+=l.share[me]; }); return s; }
+const PHONE='4747367958';
+document.getElementById('waBtn').onclick=()=>{ if(me===null) return; window.open('https://wa.me/'+PHONE+'?text='+encodeURIComponent(corrText()),'_blank','noopener'); };
+document.getElementById('smsBtn').onclick=()=>{ if(me===null) return; window.location.href='sms:+'+PHONE+'?&body='+encodeURIComponent(corrText()); };
+document.getElementById('copyBtn').onclick=async()=>{
+  const c=corrections(); if(!c.length) return;
+  const text=corrText();
+  try{ await navigator.clipboard.writeText(text); toast('Kopiert. Lim inn i meldingen til Sjur.'); }
+  catch(e){ const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.left='-9999px'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy'); toast('Kopiert. Lim inn i meldingen til Sjur.');}catch(e2){ toast('Kunne ikke kopiere. Marker teksten selv:'); window.getSelection().selectAllChildren(ta); } setTimeout(()=>ta.remove(),8000); }
+};
+let toastT=null;
+function toast(msg){ let t=document.getElementById('toast'); if(!t){ t=document.createElement('div'); t.className='toast'; t.id='toast'; t.setAttribute('role','status'); document.body.appendChild(t);} t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>{t.hidden=true;},2500); }
+render();
+</script>
+</body>
+</html>
